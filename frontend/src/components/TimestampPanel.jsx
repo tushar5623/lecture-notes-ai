@@ -24,7 +24,7 @@ export default function TimestampPanel({ videoUrl, transcriptWithTimestamps }) {
     }
     setState('loading')
     try {
-      const res = await axios.post('/api/generate-timestamps', { transcript: transcriptWithTimestamps, video_url: videoUrl })
+      const res = await api.post('/api/generate-timestamps', { transcript: transcriptWithTimestamps, video_url: videoUrl })
       const data = res.data
       if (data.status === 'error') { toast.error(data.message || 'Couldn\'t map the timestamps'); setState('idle'); return }
       setTimestamps(data.timestamps); setState('done')

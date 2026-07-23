@@ -112,7 +112,7 @@ export default function NotesOutput({ notes, onReset, language, videoUrl, transc
     // First time — call API
     setTranslating(true)
     try {
-      const res = await axios.post('/api/translate-notes', { notes })
+      const res = await api.post('/api/translate-notes', { notes })
       if (res.data.status === 'error') {
         toast.error(res.data.message || 'Translation failed')
         return

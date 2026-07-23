@@ -46,7 +46,7 @@ export default function FlashcardModal({ notes, language, onClose }) {
   const loadCards = async () => {
     setState('loading')
     try {
-      const res = await axios.post('/api/generate-flashcards', { notes, language })
+      const res = await api.post('/api/generate-flashcards', { notes, language })
       const data = res.data
       if (data.status === 'error') { toast.error(data.message || 'Couldn\'t prepare flashcards'); setState('idle'); return }
       setCards(data.cards); setCurrentCard(0); setState('cards')

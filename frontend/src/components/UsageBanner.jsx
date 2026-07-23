@@ -11,7 +11,7 @@ export default function UsageBanner({ hasApiKey, onAddKey }) {
   useEffect(() => {
     if (hasApiKey) return
     let cancelled = false
-    axios.get('/api/usage')
+    api.get('/api/usage')
       .then((res) => { if (!cancelled) setUsage(res.data) })
       .catch(() => {})
     return () => { cancelled = true }

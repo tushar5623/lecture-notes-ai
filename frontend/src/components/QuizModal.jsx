@@ -110,7 +110,7 @@ export default function QuizModal({ notes, language, onClose }) {
   const loadQuiz = async () => {
     setState('loading')
     try {
-      const res = await axios.post('/api/generate-quiz', { notes, language })
+      const res = await api.post('/api/generate-quiz', { notes, language })
       const data = res.data
       if (data.status === 'error') { toast.error(data.message || 'Couldn\'t prepare the quiz'); setState('idle'); return }
       setQuestions(data.questions); setCurrentQ(0); setScore(0); setAnswered(false); setState('quiz')

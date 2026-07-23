@@ -54,7 +54,7 @@ export default function App() {
 
     try {
       const payload = { url, ...(apiKey && { api_key: apiKey }) }
-      const response = await axios.post('/api/generate-notes', payload, { timeout: 600000, headers: { 'Content-Type': 'application/json' } })
+      const response = await api.post('/api/generate-notes', payload, { timeout: 600000, headers: { 'Content-Type': 'application/json' } })
       const data = response.data
 
       if (data.status === 'error' || data.error) {
