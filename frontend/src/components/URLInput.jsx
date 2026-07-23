@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, AlertCircle, Command } from 'lucide-react'
 import AuroraBackground from './AuroraBackground'
 import { HERO_DELAYS, fadeUpVariant } from './motion/heroTiming'
+import api from '../api.js'
+
 
 const EXAMPLES = [
   { label: 'Data structures', url: 'https://www.youtube.com/watch?v=rfscVS0vtbw' },
