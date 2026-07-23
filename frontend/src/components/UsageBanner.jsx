@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Gauge, X } from 'lucide-react'
+import api from '../api.js'
 
 const DISMISS_KEY = 'usageBannerDismissed'
 

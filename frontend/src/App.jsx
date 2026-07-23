@@ -8,6 +8,7 @@ import LoadingState from './components/LoadingState'
 import NotesOutput from './components/NotesOutput'
 import ErrorState from './components/ErrorState'
 import Features from './components/Features'
+import api from './api'
 import UsageBanner from './components/UsageBanner'
 
 const STATE = { IDLE: 'idle', LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' }
@@ -73,6 +74,10 @@ export default function App() {
         setAppState(STATE.ERROR)
       }
     } catch (err) {
+       console.log("FULL ERROR:", err);
+  console.log("STATUS:", err.response?.status);
+  console.log("DATA:", err.response?.data);
+  console.log("MESSAGE:", err.message);
       if (err.code === 'ECONNABORTED') setErrorMsg('Request timed out. The video may be too long.')
       else if (err.response) setErrorMsg(err.response.data?.message || err.response.data?.error || `Server error ${err.response.status}`)
       else setErrorMsg('Could not connect to backend. Make sure FastAPI is running on port 8000.')

@@ -13,7 +13,7 @@ import { saveAs } from 'file-saver'
 import QuizModal from './QuizModal'
 import FlashcardModal from './FlashcardModal'
 import TimestampPanel from './TimestampPanel'
-
+import api from "../api";
 function estimateReadTime(text) {
   const words = text.split(/\s+/).length
   return Math.max(1, Math.round(words / 200))

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Clock3, ArrowUpRight, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import api from "../api";
 
 function formatTime(seconds) {
   const s = Math.floor(seconds)

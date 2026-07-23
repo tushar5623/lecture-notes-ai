@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { X, Check, X as XIcon, Trophy, RotateCcw, ChevronRight, Brain, Loader2 } from 'lucide-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import api from "../api";
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D']
 

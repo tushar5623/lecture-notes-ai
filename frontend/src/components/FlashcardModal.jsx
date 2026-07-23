@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { X, ChevronLeft, ChevronRight, RotateCcw, Layers, Loader2, Shuffle } from 'lucide-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import api from "../api";
 
 function FlipCard({ card, index, total }) {
   const [flipped, setFlipped] = useState(false)
