@@ -47,7 +47,7 @@ def get_transcript(video_url: str):
             try:
                 transcript_list = yt_api.fetch(
                     video_id,
-                    languages=['hi', 'a.hi']
+                    languages=['hi']
                 )
             except Exception as e:
                 print(f"HINDI ERROR: {type(e).__name__}: {e}")
