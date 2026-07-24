@@ -2,6 +2,9 @@
 
 import re
 from youtube_transcript_api import YouTubeTranscriptApi
+import os
+from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import GenericProxyConfig
 
 def extract_video_id(url: str):
     """YouTube URL se 11-character ka video ID nikalta hai"""
@@ -18,7 +21,20 @@ def get_transcript(video_url: str):
         return {"error": "Invalid YouTube URL"}
 
     try:
-        yt_api = YouTubeTranscriptApi()
+        proxy_url = (
+    f"http://{os.getenv('PROXY_USERNAME')}:"
+    f"{os.getenv('PROXY_PASSWORD')}@"
+    f"{os.getenv('PROXY_HOST')}:"
+    f"{os.getenv('PROXY_PORT')}"
+                )
+        proxy_config = GenericProxyConfig(
+    http_url=proxy_url,
+    https_url=proxy_url
+                )
+        yt_api = YouTubeTranscriptApi(
+    proxy_config=proxy_config
+)
+        
 
         try:
             transcript_list = yt_api.fetch(
