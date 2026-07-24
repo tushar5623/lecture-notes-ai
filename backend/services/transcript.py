@@ -1,7 +1,6 @@
 # services/transcript.py — REPLACE your existing file with this
 
 import re
-from youtube_transcript_api import YouTubeTranscriptApi
 import os
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import GenericProxyConfig
@@ -22,43 +21,32 @@ def get_transcript(video_url: str):
 
     try:
         proxy_url = (
-    f"http://{os.getenv('PROXY_USERNAME')}:"
-    f"{os.getenv('PROXY_PASSWORD')}@"
-    f"{os.getenv('PROXY_HOST')}:"
-    f"{os.getenv('PROXY_PORT')}"
-                )
+            f"http://{os.getenv('PROXY_USERNAME')}:"
+            f"{os.getenv('PROXY_PASSWORD')}@"
+            f"{os.getenv('PROXY_HOST')}:"
+            f"{os.getenv('PROXY_PORT')}"
+        )
+
+        print(
+            "Proxy configured:",
+            os.getenv("PROXY_HOST"),
+            os.getenv("PROXY_PORT"),
+            os.getenv("PROXY_USERNAME")
+        )
+
         proxy_config = GenericProxyConfig(
-    http_url=proxy_url,
-    https_url=proxy_url
-                )
+            http_url=proxy_url,
+            https_url=proxy_url
+        )
+
         yt_api = YouTubeTranscriptApi(
-    proxy_config=proxy_config
-)
-        
+            proxy_config=proxy_config
+        )
 
-        try:
-            transcript_list = yt_api.fetch(
-                video_id,
-                languages=['en', 'en-US', 'en-GB', 'a.en']
-            )
-        except Exception as e:
-            print(f"ENGLISH ERROR: {type(e).__name__}: {e}")
-
-            try:
-                transcript_list = yt_api.fetch(
-                    video_id,
-                    languages=['hi']
-                )
-            except Exception as e:
-                print(f"HINDI ERROR: {type(e).__name__}: {e}")
-
-                try:
-                    transcript_list = yt_api.fetch(video_id)
-                except Exception as e:
-                    print(f"DEFAULT ERROR: {type(e).__name__}: {e}")
-                    return {
-                        "error": f"{type(e).__name__}: {str(e)}"
-                    }
+        transcript_list = yt_api.fetch(
+            video_id,
+            languages=['hi']
+        )
 
         texts = []
         timestamps = []
@@ -83,7 +71,8 @@ def get_transcript(video_url: str):
         }
 
     except Exception as e:
-        print(f"GENERAL TRANSCRIPT ERROR: {type(e).__name__}: {e}")
+        print(f"TRANSCRIPT ERROR: {type(e).__name__}: {e}")
+
         return {
             "error": f"{type(e).__name__}: {str(e)}"
         }
