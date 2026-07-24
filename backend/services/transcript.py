@@ -12,13 +12,6 @@ def extract_video_id(url: str):
     return None
 
 def get_transcript(video_url: str):
-    """
-    Returns:
-    {
-      "text": "full transcript as string",
-      "timestamps": [{"text": "...", "start": 12.3}, ...]  ← raw data with timing
-    }
-    """
     video_id = extract_video_id(video_url)
 
     if not video_id:
@@ -27,22 +20,37 @@ def get_transcript(video_url: str):
     try:
         yt_api = YouTubeTranscriptApi()
 
-        # Try languages in priority order
         try:
-            transcript_list = yt_api.fetch(video_id, languages=['en', 'en-US', 'en-GB', 'a.en'])
-        except Exception:
+            transcript_list = yt_api.fetch(
+                video_id,
+                languages=['en', 'en-US', 'en-GB', 'a.en']
+            )
+        except Exception as e:
+            print(f"ENGLISH ERROR: {type(e).__name__}: {e}")
+
             try:
-                transcript_list = yt_api.fetch(video_id, languages=['hi', 'a.hi'])
-            except Exception:
-                transcript_list = yt_api.fetch(video_id)
+                transcript_list = yt_api.fetch(
+                    video_id,
+                    languages=['hi', 'a.hi']
+                )
+            except Exception as e:
+                print(f"HINDI ERROR: {type(e).__name__}: {e}")
+
+                try:
+                    transcript_list = yt_api.fetch(video_id)
+                except Exception as e:
+                    print(f"DEFAULT ERROR: {type(e).__name__}: {e}")
+                    return {
+                        "error": f"{type(e).__name__}: {str(e)}"
+                    }
 
         texts = []
         timestamps = []
 
         for item in transcript_list:
             if isinstance(item, dict):
-                text = item.get('text', '')
-                start = item.get('start', 0)
+                text = item.get("text", "")
+                start = item.get("start", 0)
             else:
                 text = item.text
                 start = item.start
@@ -53,12 +61,13 @@ def get_transcript(video_url: str):
                 "start": start
             })
 
-        full_transcript = " ".join(texts)
-
         return {
-            "text": full_transcript,
-            "timestamps": timestamps   # ← NEW: raw timestamp data
+            "text": " ".join(texts),
+            "timestamps": timestamps
         }
 
     except Exception as e:
-        return {"error": f"Transcript nahi mil paya: {str(e)}"}
+        print(f"GENERAL TRANSCRIPT ERROR: {type(e).__name__}: {e}")
+        return {
+            "error": f"{type(e).__name__}: {str(e)}"
+        }
