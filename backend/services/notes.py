@@ -11,6 +11,19 @@ load_dotenv(override=True)
 
 MODEL = "gemini-2.5-flash"
 
+# Gemini 2.5 Flash has "thinking" turned on by default, and thinking tokens are
+# drawn from the SAME output budget as the visible answer. Left unset, longer/
+# more complex transcripts push more of that budget into invisible "thinking"
+# and less into the actual notes — sometimes exhausting it entirely and
+# returning an empty response. For this task (restructuring a transcript into
+# notes) thinking doesn't add much, so we disable it and give the model the
+# full output ceiling instead.
+MAX_OUTPUT_TOKENS = 65536
+GENERATION_CONFIG = types.GenerateContentConfig(
+    max_output_tokens=MAX_OUTPUT_TOKENS,
+    thinking_config=types.ThinkingConfig(thinking_budget=0),
+)
+
 _stop_event = threading.Event()
 executor = ThreadPoolExecutor(max_workers=2)
 
@@ -20,7 +33,13 @@ def get_client(user_api_key: str | None = None):
     return genai.Client(api_key=key)
 
 
-def chunk_text(text: str, chunk_size=800000):
+# Chunk size in characters. This used to be 800,000 — big enough that almost
+# any lecture (even 9-10 hours) was sent as a SINGLE giant prompt. That made
+# long lectures the worst case for the thinking-budget problem above (more
+# material to reason over -> more of the budget spent thinking) with no
+# chunking safety net. Chunking earlier keeps notes detail roughly constant
+# per hour of lecture instead of collapsing as the transcript grows.
+def chunk_text(text: str, chunk_size=150000):
     words = text.split()
     chunks, current_chunk, current_length = [], [], 0
     for word in words:
@@ -39,8 +58,34 @@ def generate_with_retry(prompt, client, max_retries=5):
         if _stop_event.is_set():
             raise Exception("Server shutting down")
         try:
-            response = client.models.generate_content(model=MODEL, contents=prompt)
-            return response.text
+            response = client.models.generate_content(
+                model=MODEL, contents=prompt, config=GENERATION_CONFIG
+            )
+
+            text = (response.text or "").strip()
+
+            # Guard against a starved/blocked response instead of silently
+            # returning empty or truncated notes. finish_reason tells us why
+            # generation stopped even when .text comes back empty.
+            finish_reason = None
+            candidates = getattr(response, "candidates", None) or []
+            if candidates:
+                finish_reason = getattr(candidates[0], "finish_reason", None)
+
+            if not text:
+                raise Exception(
+                    f"Empty response from Gemini (finish_reason={finish_reason}). "
+                    "This usually means the chunk was blocked (safety/recitation) "
+                    "or the model ran out of output budget."
+                )
+
+            if finish_reason is not None and "MAX_TOKENS" in str(finish_reason) and len(text) < 200:
+                raise Exception(
+                    "Response was cut off almost immediately by MAX_TOKENS — "
+                    "the output budget was exhausted before real content was written."
+                )
+
+            return text
         except Exception as e:
             error_str = str(e)
             if "429" in error_str or "quota" in error_str.lower():
